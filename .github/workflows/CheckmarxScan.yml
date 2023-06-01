@@ -51,8 +51,8 @@ jobs:
              run: |
               repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
               echo repo
-              results=$(cat $repo/results/cx_result.sarif | jq -r '.runs[].results[].ruleId')
-              echo results
+              results=$(cat $/home/runner/work/owasp_vwa/owasp_vwa/cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
+              echo "$results"
 
               resultsArray=($results)
 
@@ -64,11 +64,11 @@ jobs:
 
               for var in "${resultsArray[@]}"
               do
-                severity=$(cat $repo/results/cx_result.sarif | jq -r '.runs[].tool.driver.rules[] | select(.id=="'$var'").properties."severity"')
+                severity=$(cat $/home/runner/work/owasp_vwa/owasp_vwa/cx_result.sarif | jq -r '.runs[].tool.driver.rules[] | select(.id=="'$var'").properties."level"')
                 echo "${var} | $severity"
-                if [ "$severity" == "HIGH" ]; then let highCount+=1; fi
-                if [ "$severity" == "MEDIUM" ]; then let mediumCount+=1; fi
-                if [ "$severity" == "note" ]; then let noteCount+=1; fi
+                if [ "$severity" == "high" ]; then let highCount+=1; fi
+                if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
+                if [ "$severity" == "warning" ]; then let noteCount+=1; fi
               done
 
               echo ""
