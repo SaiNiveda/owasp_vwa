@@ -34,16 +34,18 @@ jobs:
              uses: github/codeql-action/upload-sarif@v2
              with:
                sarif_file: cx_result.sarif
+               path: ./results
            - name: Download Sarif Report
              uses: actions/download-artifact@v2
              with:
                name: cx_result.sarif
-               path: ./results
 
            - name: Detect Errors
              run: |
               repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
+              echo repo
               results=$(cat $repo/results/cx_result.sarif | jq -r '.runs[].results[].ruleId')
+              echo results
 
               resultsArray=($results)
 
