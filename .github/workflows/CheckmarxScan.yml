@@ -5,7 +5,7 @@ on:
        - main
        - dev
        - test
-       - patch-1
+       - SaiNiveda-patch-1
 
 jobs:
    AST_Scan:
