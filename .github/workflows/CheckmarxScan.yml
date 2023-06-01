@@ -30,17 +30,17 @@ jobs:
                # Secret key for AST portal authentication
                cx_client_secret: ${{ secrets.CHKMX_SECRET}}
                additional_params: --report-format sarif --output-path .
-               
-           - name: Upload SARIF file
-             uses: github/codeql-action/upload-sarif@v2
-             with:
-               sarif_file: cx_result.sarif
-               
+           
            - name: Upload Sarif Report to Workflow
              uses: actions/upload-artifact@v2
              with:
               name: cx_result.sarif
               path: /home/runner/work/**/*.sarif
+              
+           - name: Upload SARIF file
+             uses: github/codeql-action/upload-sarif@v2
+             with:
+               sarif_file: cx_result.sarif
 
            - name: Download Sarif Report
              uses: actions/download-artifact@v2
