@@ -7,72 +7,34 @@ on:
        - test
 
 jobs:
-   AST_Scan:
-      permissions:
-          contents: read # for actions/checkout to fetch code
-          security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-          actions: read # only required for a private repository by github/codeql-action/upload-sarif
-      runs-on: ubuntu-latest
-      steps:
-           - name: Checkout repository
-             uses: actions/checkout@v3.5.2
-           # You may pin to the exact commit or the version.
-           # uses: Checkmarx/ast-github-action@3bbaca0807ff5abd587965391138479c23b7b369
-           - name: AST Scan
-             uses: Checkmarx/ast-github-action@2.0.18
-             with:
-               # Provide the AST portal URL
-               base_uri: https://anz.ast.checkmarx.net/
-               # Provide the Tenant for AST portal URL
-               cx_tenant: ${{ secrets.CHKMX_TENANT}}
-               # Client ID for AST portal authentication
-               cx_client_id: ${{ secrets.CHKMX_CLIENTID}}
-               # Secret key for AST portal authentication
-               cx_client_secret: ${{ secrets.CHKMX_SECRET}}
-               additional_params: --report-format sarif --output-path .
-           
-           - name: Upload Sarif Report to Workflow
-             uses: actions/upload-artifact@v3
-             with:
-              name: cx_result
-              path: cx_result.sarif #/home/runner/work/**/*.sarif
-              
-           - name: Upload SARIF file
-             uses: github/codeql-action/upload-sarif@v2
-             with:
-               sarif_file: cx_result.sarif
+   job_1:
+    name: Add 3 and 7
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          expr 3 + 7 > math-homework.txt
+      - name: Upload math result for job 1
+        uses: actions/upload-artifact@v3
+        with:
+          name: homework
+          path: math-homework.txt
 
-   Download_Results:
-      runs-on: ubuntu-latest
-      needs: AST_Scan
-      steps:
-         - name: Download and read results
-           uses: actions/download-artifact@v3
-           with:
-            name: cx_result
-            #path: ..../${{ github.repository }}/results
-         - shell: bash
-           run: |
-              #repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
-              report = `cat cx_result.sarif`
-              echo $report
-              #results = $(cat report | jq -r '.runs[].tool.results[].ruleId') 
-              
-              #results=$(cat cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
-              #echo "$results"
-
-              #resultsArray=($results)
-
-              #echo "${resultsArray[*]}"
-
-              
-
-              #if (( $highCount > 0 )); then
-              #    echo "errors found - failing detect error check..."
-              #    exit -1
-              #fi
-
-              #if (( $warningCount > 0 )); then
-              #    echo "warnings found - failing detect warning check..."
-              #    exit -1
-              #fi   
+   job_2:
+    name: Multiply by 9
+    needs: job_1
+    runs-on: windows-latest
+    steps:
+      - name: Download math result for job 1
+        uses: actions/download-artifact@v3
+        with:
+          name: homework
+      - shell: bash
+        run: |
+          value=`cat math-homework.txt`
+          expr $value \* 9 > math-homework.txt
+      - name: Upload math result for job 2
+        uses: actions/upload-artifact@v3
+        with:
+          name: homework
+          path: math-homework.txt
