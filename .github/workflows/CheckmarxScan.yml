@@ -73,8 +73,11 @@ jobs:
 
               for var in "${resultsArray[@]}"
               do
+                echo "$nameArray[@]"
+                echo "${var}"
                 #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="$var").level')
-                count=$(jq -r -c 'map(select(.runs[].results[].ruleId==\"$var\"))|length' cx_result.sarif)
+                #count=$(jq -r -c 'map(select(.runs[].results[].ruleId==\"$var\"))|length' cx_result.sarif)
+                count=$(jq 'map(select(.runs[].results[].ruleId==\"$var\") | length)' cx_result.sarif)
                 echo "$nameArray[@]"
                 echo "${var}"
                 echo "${count}"
