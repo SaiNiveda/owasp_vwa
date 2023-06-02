@@ -64,13 +64,6 @@ jobs:
               echo "${resultsArray[*]}"
               echo "===================="
 
-              #echo "${resultsArray[*]}"
-              #for var in "${resultsArray[@]}"
-              #do
-               #echo ${var}
-               #echo "=="
-              #done
-
               highCount=0
               mediumCount=0
               noteCount=0
@@ -81,8 +74,8 @@ jobs:
                 #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="'$var'").level')
                 echo "${var}"
                 if [ "$var" = error ]; then let highCount+=1; fi
-                if [ "$var" = *"warning"* ]; then let mediumCount+=1; fi
-                if [ "$var" = *"note"* ]; then let noteCount+=1; fi
+                if [ "$var" = warning ]; then let mediumCount+=1; fi
+                if [ "$var" = note ]; then let noteCount+=1; fi
               done
 
               echo ""
