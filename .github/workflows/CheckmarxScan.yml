@@ -55,36 +55,17 @@ jobs:
            run: |
               #repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
               report='cat cx_result.sarif'
-              results = $(cat report | jq -r '.runs[].tool.results[].ruleId') 
+              echo $report
+              #results = $(cat report | jq -r '.runs[].tool.results[].ruleId') 
               
               #results=$(cat cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
-              echo "$results"
+              #echo "$results"
 
-              resultsArray=($results)
+              #resultsArray=($results)
 
-              echo "${resultsArray[*]}"
+              #echo "${resultsArray[*]}"
 
-              highCount=0
-              mediumCount=0
-              noteCount=0
-
-              for var in "${resultsArray[@]}"
-              do
-                severity=$(cat cx_result.sarif | jq -r '.runs[].tool.driver.rules[] | select(.id=="'$var'").properties."level"')
-                echo "${var} | $severity"
-                if [ "$severity" == "high" ]; then let highCount+=1; fi
-                if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
-                if [ "$severity" == "warning" ]; then let noteCount+=1; fi
-              done
-
-              echo ""
-              echo "High Count:"
-              echo $highCount
-              echo "Medium Count:" 
-              echo $mediumCount
-              echo "Warning Count:"
-              echo $noteCount
-              echo ""
+              
 
               #if (( $highCount > 0 )); then
               #    echo "errors found - failing detect error check..."
