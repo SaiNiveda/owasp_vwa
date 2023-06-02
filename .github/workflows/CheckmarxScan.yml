@@ -54,7 +54,7 @@ jobs:
          - shell: bash
            run: |
               #repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
-              report='cat cx_result.sarif'
+              report = `cat cx_result.sarif`
               echo $report
               #results = $(cat report | jq -r '.runs[].tool.results[].ruleId') 
               
