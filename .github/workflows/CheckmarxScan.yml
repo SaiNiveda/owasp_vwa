@@ -55,12 +55,13 @@ jobs:
            run: |
               #report=`cat cx_result.sarif`
               #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
-              results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
-              
+              #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
+              IFS=")" results=jq -r -c .runs[].tool.driver.rules[].id cx_result.sarif
+              set -resultsArray array $results
               #results=$(cat cx_result.sarif | jq -r --arg id "$ruleId" '.runs[].tool.results[].id')
               #echo $results
 
-              resultsArray=($results)
+              #resultsArray=($results)
               echo "${resultsArray[*]}"
               echo "===================="
 
