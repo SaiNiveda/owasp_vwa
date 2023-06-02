@@ -53,7 +53,7 @@ jobs:
             #path: ..../${{ github.repository }}/results
          - shell: bash
            run: |
-              report='cat cx_result.sarif`
+              report=`cat cx_result.sarif`
               results=$(cat $report | jq -r `.runs[].tool.results[].ruleId`) 
               
               #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].ruleId`)
