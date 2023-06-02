@@ -54,7 +54,8 @@ jobs:
          - name: Parse Results
            run: |
               #report=`cat cx_result.sarif`
-              results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
+              #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
+              results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
               
               #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
               #echo $results
@@ -64,24 +65,24 @@ jobs:
               echo "===================="
 
               #echo "${resultsArray[*]}"
-              for var in "${resultsArray[@]}"
-              do
-               echo ${var}
-               echo "=="
-              done
+              #for var in "${resultsArray[@]}"
+              #do
+               #echo ${var}
+               #echo "=="
+              #done
 
               highCount=0
               mediumCount=0
               noteCount=0
 
-              #for var in "${resultsArray[@]}"
-              #do
+              for var in "${resultsArray[@]}"
+              do
                 #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="'$var'").level')
                 #echo "${var} | $severity"
-                #if [ "$severity" == "high" ]; then let highCount+=1; fi
-                #if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
-                #if [ "$severity" == "warning" ]; then let noteCount+=1; fi
-              #done
+                if [ "$var" == "high" ]; then let highCount+=1; fi
+                if [ "$var" == "medium" ]; then let mediumCount+=1; fi
+                if [ "$var" == "warning" ]; then let noteCount+=1; fi
+              done
 
               echo ""
               echo "High Count:"
