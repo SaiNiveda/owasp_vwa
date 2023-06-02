@@ -51,7 +51,8 @@ jobs:
            with:
             name: cx_result.sarif
             #path: ..../${{ github.repository }}/results
-            run: |
+         - shell: bash
+           run: |
               #repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
 
               results=$(cat cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
