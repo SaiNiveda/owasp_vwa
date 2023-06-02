@@ -71,7 +71,7 @@ jobs:
 
               for var in "${resultsArray[@]}"
               do
-                severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=='$var').level')
+                severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId==$var).level')
                 echo "${severity}"
                 if [ "$severity" = error ]; then let highCount+=1; fi
                 if [ "$severity" = warning ]; then let mediumCount+=1; fi
