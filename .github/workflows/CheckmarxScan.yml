@@ -53,10 +53,10 @@ jobs:
             #path: ..../${{ github.repository }}/results
          - shell: bash
            run: |
-              report='cat cx_result.sarif'
-              results=$(cat report | jq -r '.runs[].tool.results[].ruleId') 
+              report='cat cx_result.sarif`
+              results=$(cat $report | jq -r `.runs[].tool.results[].ruleId`) 
               
-              #results=$(cat cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
+              #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].ruleId`)
               echo $results
 
               resultsArray=($results)
@@ -69,7 +69,7 @@ jobs:
 
               for var in "${resultsArray[@]}"
               do
-                severity=$(cat cx_result.sarif | jq -r '.runs[].tool.driver.rules[] | select(.id=="'$var'").properties."level"')
+                severity=$(cat cx_result.sarif | jq -r `.runs[].tool.driver.rules[] | select(.id=="'$var'").properties."level"`)
                 echo "${var} | $severity"
                 if [ "$severity" == "high" ]; then let highCount+=1; fi
                 if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
