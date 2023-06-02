@@ -62,32 +62,32 @@ jobs:
               resultsArray=($results)
 
               #echo "${resultsArray[*]}"
-              for var in "$resultsArray[@]"
-              do
-               echo ${var}
-              done
-
-              #highCount=0
-              #mediumCount=0
-              #noteCount=0
-
-              #for var in "${resultsArray[@]}"
+              #for var in "$resultsArray[@]"
               #do
-                #severity=$(cat $report | jq -r '.runs[].results[] | select(.ruleId=="'$var'").level')
-                #echo "${var} | $severity"
-                #if [ "$severity" == "high" ]; then let highCount+=1; fi
-                #if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
-                #if [ "$severity" == "warning" ]; then let noteCount+=1; fi
+               #echo ${var}
               #done
 
-              #echo ""
-              #echo "High Count:"
-              #echo $highCount
-              #echo "Medium Count:" 
-              #echo $mediumCount
-              #echo "Warning Count:"
-              #echo $noteCount
-              #echo ""
+              highCount=0
+              mediumCount=0
+              noteCount=0
+
+              for var in "${resultsArray[@]}"
+              do
+                severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="'$var'").level')
+                echo "${var} | $severity"
+                if [ "$severity" == "high" ]; then let highCount+=1; fi
+                if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
+                if [ "$severity" == "warning" ]; then let noteCount+=1; fi
+              done
+
+              echo ""
+              echo "High Count:"
+              echo $highCount
+              echo "Medium Count:" 
+              echo $mediumCount
+              echo "Warning Count:"
+              echo $noteCount
+              echo ""
 
               #if (( $highCount > 0 )); then
               #    echo "errors found - failing detect error check..."
