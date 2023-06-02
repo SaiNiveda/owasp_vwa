@@ -54,12 +54,14 @@ jobs:
          - name: Parse Results
            run: |
               #report=`cat cx_result.sarif`
-              results=$(cat cx_result.sarif | jq -r '".runs[].results[].ruleId"') 
+              results=$(cat cx_result.sarif | jq -r '.runs[].results[].ruleId') 
               
               #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
               #echo $results
 
               resultsArray=($results)
+              echo $resultsArray
+              echo "===================="
 
               #echo "${resultsArray[*]}"
               #for var in "$resultsArray[@]"
@@ -71,7 +73,7 @@ jobs:
               mediumCount=0
               noteCount=0
 
-              for var in "${resultsArray[@]}"
+              for $var in "${resultsArray[@]}"
               do
                 severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="'$var'").level')
                 echo "${var} | $severity"
