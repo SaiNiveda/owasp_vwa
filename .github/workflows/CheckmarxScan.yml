@@ -57,13 +57,15 @@ jobs:
               #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
               #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
               IFS="\n" results=$(jq -r -c .runs[].tool.driver.rules[].id cx_result.sarif)
+              resultsArray=($results)
               #results=$(cat cx_result.sarif | jq -r --arg id "$ruleId" '.runs[].tool.results[].id')
               #echo $results
-
-              resultsArray=($results)
-              echo "${resultsArray[*]}"
+              IFS="\n" nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
+              
+              #echo "${resultsArray[*]}"
               echo "===================="
-
+              nameArray=($nameResults)
+              echo "${nameArray[*]}"
               highCount=0
               mediumCount=0
               noteCount=0
@@ -71,11 +73,14 @@ jobs:
 
               for var in "${resultsArray[@]}"
               do
-                severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="$var").level')
-                echo "${severity}"
-                if [ "$severity" = error ]; then let highCount+=1; fi
-                if [ "$severity" = warning ]; then let mediumCount+=1; fi
-                if [ "$severity" = note ]; then let noteCount+=1; fi
+                #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="$var").level')
+                count=$(jq -r -c 'map(select(.runs[].results[].ruleId==\"$var\"))|length' cx_result.sarif)
+                echo "$nameArray[@]"
+                echo "${var}"
+                echo "${count}"
+                #if [ "$severity" = error ]; then let highCount+=1; fi
+                #if [ "$severity" = warning ]; then let mediumCount+=1; fi
+                #if [ "$severity" = note ]; then let noteCount+=1; fi
               done
 
               echo ""
