@@ -54,10 +54,10 @@ jobs:
          - shell: bash
            run: |
               report=`cat cx_result.sarif`
-              results=$(cat $report | jq -r '.runs[].tool.results[].ruleId') 
+              results=$(cat $report | jq -r '.runs[].tool.rules[].id') 
               
-              #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].ruleId`)
-              echo $results
+              #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
+              #echo $results
 
               resultsArray=($results)
 
@@ -69,7 +69,7 @@ jobs:
 
               for var in "${resultsArray[@]}"
               do
-                severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.id=="'$var'").properties."level"')
+                severity=$(cat $report | jq -r '.runs[].results[] | select(.id=="'$var'").properties."level"')
                 echo "${var} | $severity"
                 if [ "$severity" == "high" ]; then let highCount+=1; fi
                 if [ "$severity" == "medium" ]; then let mediumCount+=1; fi
