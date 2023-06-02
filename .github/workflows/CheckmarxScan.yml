@@ -54,7 +54,7 @@ jobs:
          - name: Parse Results
            run: |
               #report=`cat cx_result.sarif`
-              results=$(cat cx_result.sarif | jq -r 'runs[].results[].ruleId') 
+              results=$(cat cx_result.sarif | jq -r '.runs[].results[].ruleId') 
               
               #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
               #echo $results
