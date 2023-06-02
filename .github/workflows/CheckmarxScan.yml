@@ -56,11 +56,11 @@ jobs:
               #report=`cat cx_result.sarif`
               #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
               #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
-              IFS="\n" results=$(jq -r -c .runs[].tool.driver.rules[].id cx_result.sarif)
+              IFS=$'\n' results=$(jq -r -c .runs[].tool.driver.rules[].id cx_result.sarif)
               resultsArray=($results)
               #results=$(cat cx_result.sarif | jq -r --arg id "$ruleId" '.runs[].tool.results[].id')
               #echo $results
-              IFS="\n" nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
+              IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               
               #echo "${resultsArray[*]}"
               echo "===================="
@@ -77,7 +77,7 @@ jobs:
                 echo "${var}"
                 #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="$var").level')
                 #count=$(jq -r -c 'map(select(.runs[].results[].ruleId==\"$var\"))|length' cx_result.sarif)
-                count=$(jq 'map(select(.runs[].results[].ruleId==\"$var\") | length)' cx_result.sarif)
+                count=$(jq 'map(select(.runs[].results[].ruleId=="${var}") | length)' cx_result.sarif)
                 echo "$nameArray[@]"
                 echo "${var}"
                 echo "${count}"
