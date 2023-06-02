@@ -42,16 +42,21 @@ jobs:
              with:
                sarif_file: cx_result.sarif
 
+   Download_Results:
+           runs-on: ubuntu-latest
+           needs: AST_Scan
+           steps:
            - name: Download Sarif Report
              uses: actions/download-artifact@v2
              with:
                name: cx_result.sarif
+               path: ${{ github.repository }}/results
 
            - name: Detect Errors
              run: |
               repo=$(echo ${{ github.repository }} | awk -F'/' '{print $2}')
-              echo repo
-              results=$(cat $/home/runner/work/owasp_vwa/owasp_vwa/cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
+              echo $repo
+              results=$(cat $repo/results/cx_result.sarif | jq -r '.runs[].tool.results[].ruleId')
               echo "$results"
 
               resultsArray=($results)
@@ -85,4 +90,4 @@ jobs:
               #if (( $warningCount > 0 )); then
               #    echo "warnings found - failing detect warning check..."
               #    exit -1
-              #fi
+              #fi   
