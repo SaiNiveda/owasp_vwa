@@ -79,9 +79,9 @@ jobs:
                 #count=$(jq -r -c 'map(select(.runs[].results[].ruleId==\"$var\"))|length' cx_result.sarif)
                 #->count=$(jq 'map(select(.runs[].results[].ruleId=="${var}") | length)' cx_result.sarif)
                 #severity=$(jq -r '.runs[].results[] | select(.ruleId=="{$var}") | length' cx_result.sarif)
-                warningCount=$(jq -r -c --arg ruleId "$ruleId" 'runs[].results[] | select(.level=="warning") | select(.ruleId==$ruleId) | length' cx_result.sarif)
+                warningCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="warning") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 echo "${warningCount}"
-                errorCount=$(jq -r -c --arg ruleId "$ruleId" 'runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
+                errorCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 echo "${errorCount}"
                 #if [ "$severity" = error ]; then let highCount+=1; fi
                 #if [ "$severity" = warning ]; then let mediumCount+=1; fi
