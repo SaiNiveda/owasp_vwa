@@ -79,9 +79,9 @@ jobs:
               do
                 #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="'$var'").level')
                 #echo "${var}"
-                if [ "$var" = "error" ]; then let highCount+=1; echo $highCount; fi
-                if [ "$var" = "warning" ]; then let mediumCount+=1; fi
-                if [ "$var" = "note" ]; then let noteCount+=1; fi
+                if [ "$var" = *"error"* ]; then let highCount+=1; echo $highCount; fi
+                if [ "$var" = *"warning"* ]; then let mediumCount+=1; fi
+                if [ "$var" = *"note"* ]; then let noteCount+=1; fi
               done
 
               echo ""
