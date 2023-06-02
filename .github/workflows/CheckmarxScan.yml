@@ -60,7 +60,7 @@ jobs:
               #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
               #echo $results
 
-              resultsArray=("$results")
+              resultsArray=($results)
               echo $resultsArray[*]
               echo "===================="
 
