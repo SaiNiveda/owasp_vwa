@@ -55,9 +55,9 @@ jobs:
            run: |
               #report=`cat cx_result.sarif`
               #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
-              results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
+              #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
               
-              #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
+              results=$(cat cx_result.sarif | jq -r --arg id "$ruleId" `.runs[].tool.results[].id`)
               #echo $results
 
               resultsArray=($results)
