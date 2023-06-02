@@ -54,7 +54,7 @@ jobs:
          - shell: bash
            run: |
               report=`cat cx_result.sarif`
-              results=$(cat $report | jq -r 'runs[].tool.driver.rules[].id') 
+              results=$(cat $report | jq 'runs[].tool.driver.rules[].id') 
               
               #results=$(cat cx_result.sarif | jq -r `.runs[].tool.results[].id`)
               #echo $results
