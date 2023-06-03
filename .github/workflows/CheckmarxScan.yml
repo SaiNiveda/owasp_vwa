@@ -42,7 +42,7 @@ jobs:
              with:
                sarif_file: cx_result.sarif
 
-   Download_Results:
+   Parse_Results:
       runs-on: ubuntu-latest
       needs: AST_Scan
       steps:
@@ -53,52 +53,46 @@ jobs:
             #path: ..../${{ github.repository }}/results
          - name: Parse Results
            run: |
-              #report=`cat cx_result.sarif`
-              #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].ruleId') 
-              #results=$(cat cx_result.sarif | jq -r -c '.runs[].results[].level') 
+              
+              #gets and splits list of rule ids              
               IFS=$'\n' results=$(jq -r -c .runs[].tool.driver.rules[].id cx_result.sarif)
               resultsArray=($results)
-              #results=$(cat cx_result.sarif | jq -r --arg id "$ruleId" '.runs[].tool.results[].id')
-              #echo $results
-              IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               
-              #echo "${resultsArray[*]}"
-              echo "===================="
+              #gets and splits list of rule names
+              IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
+              
               #echo "${nameArray[*]}"
-              highCount=0
-              mediumCount=0
-              noteCount=0
-              echo "entering for"
+              
+              #init counters
+              #highCount=0
+              #mediumCount=0
+              #noteCount=0
 
-              for ruleId in "${resultsArray[@]}"
-              do
-                echo "$nameArray[@]"
-                echo "${var}"
-                #severity=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.ruleId=="$var").level')
-                #count=$(jq -r -c 'map(select(.runs[].results[].ruleId==\"$var\"))|length' cx_result.sarif)
-                #->count=$(jq 'map(select(.runs[].results[].ruleId=="${var}") | length)' cx_result.sarif)
-                #severity=$(jq -r '.runs[].results[] | select(.ruleId=="{$var}") | length' cx_result.sarif)
-                #warningCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="warning") | select(.ruleId==$ruleId) | length' cx_result.sarif)
-                warningCount=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.level=="warning") | length')
-                echo "warning for ${var} is ${warningCount}"
-                errorCount=errorCount=$(cat cx_result.sarif | jq -r --arg RULEId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId=="$RULEId") | length')
-                #errorCount=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.level=="error") | length')
-                #$(jq -r -c --arg ruleId "$var" '.runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
-                echo "error for ${var} is ${errorCount}"
+              #for ruleId in "${resultsArray[@]}"
+              #do
+                #direct count of .level for totals
+                #count=$(jq -r -c '.runs[].results[].level' cx_result.sarif)
                 #if [ "$severity" = error ]; then let highCount+=1; fi
                 #if [ "$severity" = warning ]; then let mediumCount+=1; fi
-                #if [ "$severity" = note ]; then let noteCount+=1; fi
-              done
-
+                #if [ "$severity" = note ]; then let noteCount+=1; fi 
+              #done
+              
+              #try select
+              #These return full nodes
+              #highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
+              #mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
+              
+              highCount=$(jq -r '.runs[].results[] | [select(.level=="error")] | length' cx_result.sarif)
+              mediumCount=$(jq -r '.runs[].results[] | [select(.level=="warning") | length]' cx_result.sarif)  
+              
               echo ""
-              echo "High Count:"
-              echo $highCount
-              echo "Medium Count:" 
-              echo $mediumCount
-              echo "Warning Count:"
-              echo $noteCount
+              echo "High Count: ${#highCount[@]}"
+              echo "Medium Count: ${#mediumCount[@]}"
+              echo "Info Count: $noteCount"
               echo ""
+              
+              #build
 
               #if (( $highCount > 0 )); then
               #    echo "errors found - failing detect error check..."
