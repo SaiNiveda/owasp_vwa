@@ -82,7 +82,8 @@ jobs:
                 #warningCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="warning") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 warningCount=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.level=="warning") | length')
                 echo "${warningCount}"
-                errorCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
+                errorCount=errorCount=$(cat cx_result.sarif | jq -r --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId=="'$ruleId'") | length')
+                #$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 echo "${errorCount}"
                 #if [ "$severity" = error ]; then let highCount+=1; fi
                 #if [ "$severity" = warning ]; then let mediumCount+=1; fi
