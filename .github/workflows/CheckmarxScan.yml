@@ -79,10 +79,12 @@ jobs:
               #done
               
               #try select
-              highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
-              mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
+              #These return full nodes
+              #highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
+              #mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
               
-              highCount = $(jq $highCountList | jq '. | length')  
+              highCount=$(jq '.runs[].results[].level | select(.level=="error")' cx_result.sarif)
+              mediumCount=$(jq '.runs[].results[].level | select(.level=="warning")' cx_result.sarif)  
               
               echo ""
               echo "High Count: $highCount"
