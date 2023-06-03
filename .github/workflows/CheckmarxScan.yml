@@ -79,8 +79,8 @@ jobs:
               #done
               
               #try select
-              highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.json)
-              mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.json)  
+              highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
+              mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
               
               highCount = $(jq $highCountList | jq '. | length')  
               
