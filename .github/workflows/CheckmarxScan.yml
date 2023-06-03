@@ -81,9 +81,7 @@ jobs:
               #try select
               highCount=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
               mediumCount=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
-                
-              done
-
+              
               echo ""
               echo "High Count: $highCount"
               echo "Medium Count: $mediumCount"
