@@ -80,7 +80,7 @@ jobs:
                 #->count=$(jq 'map(select(.runs[].results[].ruleId=="${var}") | length)' cx_result.sarif)
                 #severity=$(jq -r '.runs[].results[] | select(.ruleId=="{$var}") | length' cx_result.sarif)
                 #warningCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="warning") | select(.ruleId==$ruleId) | length' cx_result.sarif)
-                warningCount=$(jq --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="warning") | length' cx_result.sarif)
+                warningCount=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.level=="warning") | length')
                 echo "${warningCount}"
                 errorCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 echo "${errorCount}"
