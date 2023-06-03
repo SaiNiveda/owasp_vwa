@@ -83,8 +83,9 @@ jobs:
               #highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
               #mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
               
-              highCount=$(jq -r 'map(.runs[].results[] | select(.level=="error")) | length' cx_result.sarif)
-              mediumCount=$(jq -r 'map(.runs[].results[] | select(.level=="warning")) | length]' cx_result.sarif)  
+              #jq -s '[.[] | select(.value == "active")] | length'
+              highCount=$(jq -s '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
+              mediumCount=$(jq -s '[.runs[].results[] | select(.level=="warning")] | length]' cx_result.sarif)  
               
               echo ""
               echo "High Count: ${#highCount[@]}"
