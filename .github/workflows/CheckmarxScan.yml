@@ -61,9 +61,9 @@ jobs:
               #gets and splits list of rule names
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
-              
-              #echo "${nameArray[*]}"
-              
+              echo "Name Count"
+              echo "${#nameArray[*]}"
+              echo "==============="
               #init counters
               #highCount=0
               #mediumCount=0
@@ -83,12 +83,13 @@ jobs:
               #highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
               #mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
               
-              highCount=$(jq -r '.runs[].results[] | [select(.level=="error")] | length' cx_result.sarif)
-              mediumCount=$(jq -r '.runs[].results[] | [select(.level=="warning") | length]' cx_result.sarif)  
-              
+              #jq -s '[.[] | select(.value == "active")] | length'
+              highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
+              mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)  
+                            
               echo ""
-              echo "High Count: ${#highCount[@]}"
-              echo "Medium Count: ${#mediumCount[@]}"
+              echo "High Count: ${highCount}"
+              echo "Medium Count: ${mediumCount}"
               echo "Info Count: $noteCount"
               echo ""
               
