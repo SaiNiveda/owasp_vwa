@@ -82,7 +82,7 @@ jobs:
                 #warningCount=$(jq -r -c --arg ruleId "$ruleId" '.runs[].results[] | select(.level=="warning") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 warningCount=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.level=="warning") | length')
                 echo "warning for ${var} is ${warningCount}"
-                errorCount=errorCount=$(cat cx_result.sarif | jq -r --arg ruleId "$var" '.runs[].results[] | select(.level=="error") | select(.ruleId=ruleId="$ruleId") | length')
+                errorCount=errorCount=$(cat cx_result.sarif | jq -r --arg RULEId "$ruleId" '.runs[].results[] | select(.level=="error") | select(.ruleId=="$RULEId") | length')
                 #errorCount=$(cat cx_result.sarif | jq -r '.runs[].results[] | select(.level=="error") | length')
                 #$(jq -r -c --arg ruleId "$var" '.runs[].results[] | select(.level=="error") | select(.ruleId==$ruleId) | length' cx_result.sarif)
                 echo "error for ${var} is ${errorCount}"
