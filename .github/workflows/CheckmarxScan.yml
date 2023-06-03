@@ -62,7 +62,7 @@ jobs:
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
               echo "Name Count"
-              echo "${nameArray[*]}"
+              echo "${#nameArray[*]}"
               echo "==============="
               #init counters
               #highCount=0
@@ -85,11 +85,10 @@ jobs:
               
               #jq -s '[.[] | select(.value == "active")] | length'
               highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
-              mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length]' cx_result.sarif)  
-              $highCountArray=($highCount)
-              
+              mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)  
+                            
               echo ""
-              echo "High Count: ${#highCountArray[@]}"
+              echo "High Count: ${highCount}"
               echo "Medium Count: ${#mediumCount[*]}"
               echo "Info Count: $noteCount"
               echo ""
