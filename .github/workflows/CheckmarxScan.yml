@@ -89,7 +89,7 @@ jobs:
                             
               echo ""
               echo "High Count: ${highCount}"
-              echo "Medium Count: ${#mediumCount[*]}"
+              echo "Medium Count: ${mediumCount}"
               echo "Info Count: $noteCount"
               echo ""
               
