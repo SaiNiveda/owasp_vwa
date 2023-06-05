@@ -54,44 +54,67 @@ jobs:
          - name: Parse Results
            run: |
               
-              #gets and splits list of rule ids              
-              IFS=$'\n' results=$(jq -r -c .runs[].tool.driver.rules[].id cx_result.sarif)
-              resultsArray=($results)
-              
+              #Get counts per engine
+              sastCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sast)"))] | length' cx_result.sarif)
+              kicsCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(kics)"))] | length' cx_result.sarif)
+              scaCount==$(jq '[.runs[].results[] | select(.ruleId | contains ("(sca)"))] | length' cx_result.sarif)
+              #***need to check api's detected + count with another report
+              apisecCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(apisec)"))] | length' cx_result.sarif)
+
+              #Get counts per severity
+              highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
+              mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)
+              #***need to check actual levels with another report
+              lowCount=$(jq '[.runs[].results[] | select(.level=="low")] | length' cx_result.sarif)
+              infoCount=$(jq '[.runs[].results[] | select(.level=="info")] | length' cx_result.sarif)
+
               #gets and splits list of rule names
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
-              echo "Name Count"
-              echo "${#nameArray[*]}"
-              echo "==============="
-              #init counters
-              #highCount=0
-              #mediumCount=0
-              #noteCount=0
 
-              #for ruleId in "${resultsArray[@]}"
-              #do
-                #direct count of .level for totals
-                #count=$(jq -r -c '.runs[].results[].level' cx_result.sarif)
-                #if [ "$severity" = error ]; then let highCount+=1; fi
-                #if [ "$severity" = warning ]; then let mediumCount+=1; fi
-                #if [ "$severity" = note ]; then let noteCount+=1; fi 
-              #done
-              
-              #try select
-              #These return full nodes
-              #highCountList=$(jq '.runs[].results[] | select(.level=="error")' cx_result.sarif)
-              #mediumCountList=$(jq '.runs[].results[] | select(.level=="warning")' cx_result.sarif)  
-              
-              #jq -s '[.[] | select(.value == "active")] | length'
-              highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
-              mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)  
-                            
-              echo ""
-              echo "High Count: ${highCount}"
-              echo "Medium Count: ${mediumCount}"
-              echo "Info Count: $noteCount"
-              echo ""
+              cat << 'EOF' >EmailContent.html
+                 echo "<!DOCTYPE html>
+                 <html lang=\"en\">
+                    <head>
+                       <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
+                       <meta name=\"viewport\" content=\"width=device-width\">
+                    </head>
+                    <body>"
+
+                  if (( $highCount > 0 ) or (warningCount>0)); then
+                     echo "<div>${{github.run_number}} build failed with <b style=\"color: ##00ff00;  font-family:Arial;\">high risk security<> violations</div>"
+                  else
+                     echo "<div>${{github.run_number}} build succeeded</div>"
+                     echo "</body>"
+                     EOF
+                     exit 0
+                  fi
+                  echo "<div style=\"font-size:14px; font-weight: bold;\">Scan result summary</div>"
+                  echo "<table role="presentation" border="0" align="right" cellspacing="0">"
+                  echo "<tr><td style=\"font-weight: bold;\>Sast</td><td style=\"font-weight: bold;\>IaC</td><td style=\"font-weight: bold;\>SCA</td></tr>"
+                  echo "<tr><td>{$sastCount}</td><td>{$kicsCount}</td><td>{$scaCount}</td></tr>"
+                  echo "</table>"
+                  echo ""
+                  echo "<div  style=\"font-size:14px; font-weight: bold;\">Scan result per severity</div>"
+                  echo ""
+                  echo "<table role="presentation" border="0" align="right" cellspacing="0">"
+                  echo "<tr><td style=\"font-weight: bold;\">High</td><td style=\"font-weight: bold;\>Warning</td><td style=\"font-weight: bold;\>Low</td><td style=\"font-weight: bold;\>Info</td></tr>"
+                  echo "<tr><td>{$highCount}</td><td>{$mediumCount}</td><td>{$lowCount}</td><td>{$infoCount}</td></tr>"
+                  echo "</table>"
+                  echo ""
+                  echo "<div style=\"font-size:14px; font-weight: bold;\">Scan results per vulverability</div>"
+                  echo "<table role="presentation" border="0" align="right" cellspacing="0">"
+                  echo "<tr><td style=\"font-weight: bold;\>Vulnerability</td><td style=\"font-weight: bold;\>Count</td></tr>"
+
+                  for violation in "${nameArray[@]}"
+                  do
+                     vulnerabilityCount=$(jq --args VIOLATION {$violation} '[.runs[].results[] | select(.message.text==$VIOLATION)] | length' cx_result.sarif)
+                     echo "<tr><td>{$violation}</td><td>{$vulnerabilityCount}</td></tr>"
+                  done
+                  echo "</table>"
+
+                  echo "</body></html>"
+               EOF
               
               #build
 
@@ -103,4 +126,10 @@ jobs:
               #if (( $warningCount > 0 )); then
               #    echo "warnings found - failing detect warning check..."
               #    exit -1
-              #fi   
+              #fi
+              
+         - name: Upload email content to workflow
+           uses: actions/upload-artifact@v3
+           with:
+              name: htmlReport
+              path: EmailContent.html
