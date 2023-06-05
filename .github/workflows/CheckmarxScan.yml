@@ -72,15 +72,15 @@ jobs:
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
 
-              cat > EmailContent.html
-                 echo "<!DOCTYPE html>" >> EmailContent.html
+              #cat > EmailContent.html
+                 echo "<!DOCTYPE html>" > EmailContent.html
                  echo "<html lang=en>" >> EmailContent.html
                  echo "<head>" >> EmailContent.html
                  echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />" >> EmailContent.html
                  echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
                  echo "</head>" >> EmailContent.html
                  echo "<body>" >> EmailContent.html
-                 EOF
+                 #EOF
 
                   if (( $highCount > 0 ) || (warningCount>0)); then
                      echo "<div>run ${{github.run_number}} build failed with <b style=color: ##00ff00;  font-family:Arial;>high risk security</b> violations</div>" >> EmailContent.html
