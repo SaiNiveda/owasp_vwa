@@ -109,7 +109,7 @@ jobs:
 
                   for violation in "${nameArray[@]}"
                   do
-                     vulnerabilityCount=$(jq --args VIOLATION $violation '[.runs[].results[] | select(.message.text==$VIOLATION)] | length' cx_result.sarif)
+                     vulnerabilityCount=$(jq --arg var "$violation" '[.runs[].results[] | select(.message.text==$var)] | length' cx_result.sarif)
                      echo "<tr><td>${violation}</td><td>${vulnerabilityCount}</td></tr>" >> EmailContent.html
                   done
                   echo "</table>" >> EmailContent.html
