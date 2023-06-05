@@ -81,8 +81,8 @@ jobs:
                     </head>
                     <body>"
 
-                  if (( $highCount > 0 ) or (warningCount>0)); then
-                     echo "<div>${{github.run_number}} build failed with <b style=\"color: ##00ff00;  font-family:Arial;\">high risk security<> violations</div>"
+                  if (( $highCount > 0 ) || (warningCount>0)); then
+                     echo "<div>${{github.run_number}} build failed with <b style=\"color: ##00ff00;  font-family:Arial;\">high risk security</b> violations</div>"
                   else
                      echo "<div>${{github.run_number}} build succeeded</div>"
                      echo "</body>"
