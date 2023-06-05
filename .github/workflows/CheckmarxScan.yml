@@ -72,17 +72,17 @@ jobs:
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
 
-              cat << 'EOF' >EmailContent.html
-                 echo "<!DOCTYPE html>
-                 <html lang=\"en\">
-                    <head>
-                       <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
-                       <meta name=\"viewport\" content=\"width=device-width\">
-                    </head>
-                    <body>"
+              cat << 'EOF' > EmailContent.html
+                 echo "<!DOCTYPE html>"
+                 echo "<html lang=\"en\">"
+                 echo "<head>"
+                 echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
+                 echo "<meta name=\"viewport\" content=\"width=device-width\">"
+                 echo "</head>"
+                 echo "<body>"
 
                   if (( $highCount > 0 ) || (warningCount>0)); then
-                     echo "<div>${{github.run_number}} build failed with <b style=\"color: ##00ff00;  font-family:Arial;\">high risk security</b> violations</div>"
+                     echo "<div>run ${{github.run_number}} build failed with <b style=\"color: ##00ff00;  font-family:Arial;\">high risk security</b> violations</div>"
                   #else
                      #echo "<div>${{github.run_number}} build succeeded</div>"
                      #echo "</body>"
@@ -90,26 +90,26 @@ jobs:
                      #exit 0
                   fi
                   echo "<div style=\"font-size:14px; font-weight: bold;\">Scan result summary</div>"
-                  echo "<table role="presentation" border="0" align="right" cellspacing="0">"
-                  echo "<tr><td style=\"font-weight: bold;\>Sast</td><td style=\"font-weight: bold;\>IaC</td><td style=\"font-weight: bold;\>SCA</td></tr>"
-                  echo "<tr><td>{$sastCount}</td><td>{$kicsCount}</td><td>{$scaCount}</td></tr>"
+                  echo "<table role=\"presentation\" border=\"0\" align=\"right\" cellspacing=\"0\">"
+                  echo "<tr><td style=\"font-weight: bold;\">Sast</td><td style=\"font-weight: bold;\">IaC</td><td style=\"font-weight: bold;\">SCA</td></tr>"
+                  echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"
                   echo "</table>"
                   echo ""
                   echo "<div  style=\"font-size:14px; font-weight: bold;\">Scan result per severity</div>"
                   echo ""
-                  echo "<table role="presentation" border="0" align="right" cellspacing="0">"
-                  echo "<tr><td style=\"font-weight: bold;\">High</td><td style=\"font-weight: bold;\>Warning</td><td style=\"font-weight: bold;\>Low</td><td style=\"font-weight: bold;\>Info</td></tr>"
-                  echo "<tr><td>{$highCount}</td><td>{$mediumCount}</td><td>{$lowCount}</td><td>{$infoCount}</td></tr>"
+                  echo "<table role=\"presentation\" border=\"0\" align=\"right\" cellspacing=\"0\">"
+                  echo "<tr><td style=\"font-weight: bold;\">High</td><td style=\"font-weight: bold;\">Warning</td><td style=\"font-weight: bold;\">Low</td><td style=\"font-weight: bold;\">Info</td></tr>"
+                  echo "<tr><td>${highCount}</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>"
                   echo "</table>"
                   echo ""
                   echo "<div style=\"font-size:14px; font-weight: bold;\">Scan results per vulverability</div>"
-                  echo "<table role="presentation" border="0" align="right" cellspacing="0">"
-                  echo "<tr><td style=\"font-weight: bold;\>Vulnerability</td><td style=\"font-weight: bold;\>Count</td></tr>"
+                  echo "<table role=\"presentation\" border=\"0\" align=\"right\" cellspacing=\"0\">"
+                  echo "<tr><td style=\"font-weight: bold;\">Vulnerability</td><td style=\"font-weight: bold;\">Count</td></tr>"
 
                   for violation in "${nameArray[@]}"
                   do
-                     vulnerabilityCount=$(jq --args VIOLATION {$violation} '[.runs[].results[] | select(.message.text==$VIOLATION)] | length' cx_result.sarif)
-                     echo "<tr><td>{$violation}</td><td>{$vulnerabilityCount}</td></tr>"
+                     vulnerabilityCount=$(jq --args VIOLATION "$violation" '[.runs[].results[] | select(.message.text==$VIOLATION)] | length' cx_result.sarif)
+                     echo "<tr><td>${violation}</td><td>${vulnerabilityCount}</td></tr>"
                   done
                   echo "</table>"
 
