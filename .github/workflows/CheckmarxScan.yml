@@ -55,18 +55,18 @@ jobs:
            run: |
               
               #Get counts per engine
-              sastCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sast)"))] | length' cx_result.sarif)
-              kicsCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(kics)"))] | length' cx_result.sarif)
-              scaCount==$(jq '[.runs[].results[] | select(.ruleId | contains ("(sca)"))] | length' cx_result.sarif)
-              #***need to check api's detected + count with another report
-              apisecCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(apisec)"))] | length' cx_result.sarif)
+               sastCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sast)"))] | length' cx_result.sarif)
+               kicsCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(kics)"))] | length' cx_result.sarif)
+               scaCount==$(jq '[.runs[].results[] | select(.ruleId | contains ("(sca)"))] | length' cx_result.sarif)
+               #***need to check api's detected + count with another report
+               apisecCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(apisec)"))] | length' cx_result.sarif)
 
-              #Get counts per severity
-              highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
-              mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)
-              #***need to check actual levels with another report
-              lowCount=$(jq '[.runs[].results[] | select(.level=="low")] | length' cx_result.sarif)
-              infoCount=$(jq '[.runs[].results[] | select(.level=="info")] | length' cx_result.sarif)
+               #Get counts per severity
+               highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
+               mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)
+               #***need to check actual levels with another report
+               lowCount=$(jq '[.runs[].results[] | select(.level=="low")] | length' cx_result.sarif)
+               infoCount=$(jq '[.runs[].results[] | select(.level=="info")] | length' cx_result.sarif)
 
               #gets and splits list of rule names
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
@@ -93,14 +93,14 @@ jobs:
                   echo "<div style=font-size:14px; font-weight: bold;>Scan result summary</div>"  >> EmailContent.html
                   echo "<table role=presentation; border=0; align=right; cellspacing=0>"  >> EmailContent.html
                   echo "<tr><td style=font-weight: bold;>Sast</td><td style=font-weight: bold;>IaC</td><td style=font-weight: bold;>SCA</td></tr>"  >> EmailContent.html
-                  echo "<tr><td>${{sastCount}}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
+                  echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
                   echo "</table>"  >> EmailContent.html
                   echo "" >> EmailContent.html
                   echo "<div  style=font-size:14px; font-weight: bold;>Scan result per severity</div>"  >> EmailContent.html
                   echo "" >> EmailContent.html
                   echo "<table role=presentation; border=0; align=right; cellspacing=0>" >> EmailContent.html
                   echo "<tr><td style=font-weight: bold;>High</td><td style=font-weight: bold;>Warning</td><td style=font-weight: bold;>Low</td><td style=font-weight: bold;>Info</td></tr>" >> EmailContent.html
-                  echo "<tr><td>$highCount</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
+                  echo "<tr><td>${highCount}</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
                   echo "</table>" >> EmailContent.html
                   echo "" >> EmailContent.html
                   echo "<div style=font-size:14px; font-weight: bold;>Scan results per vulverability</div>" >> EmailContent.html
