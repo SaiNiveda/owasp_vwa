@@ -72,40 +72,40 @@ jobs:
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
 
-              cat << 'EOF' > EmailContent.html
-                 echo "<!DOCTYPE html>"
-                 echo "<html lang=en>"
-                 echo "<head>"
-                 echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />"
-                 echo "<meta name=viewport content=width=device-width>"
-                 echo "</head>"
-                 echo "<body>"
-                 EOF
+              cat > EmailContent.html
+                 echo "<!DOCTYPE html>" >> EmailContent.html
+                 echo "<html lang=en>" >> EmailContent.html
+                 echo "<head>" >> EmailContent.html
+                 echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />" >> EmailContent.html
+                 echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
+                 echo "</head>" >> EmailContent.html
+                 echo "<body>" >> EmailContent.html
+                 #EOF
 
                   if (( $highCount > 0 ) || (warningCount>0)); then
-                     echo "<div>run ${{github.run_number}} build failed with <b style=\"color: ##00ff00;  font-family:Arial;\">high risk security</b> violations</div>" >> EmailContent.html
+                     echo "<div>run ${{github.run_number}} build failed with <b style=color: ##00ff00;  font-family:Arial;>high risk security</b> violations</div>" >> EmailContent.html
                   #else
                      #echo "<div>${{github.run_number}} build succeeded</div>"
                      #echo "</body>"
                      #EOF
                      #exit 0
                   fi
-                  echo "<div style=\"font-size:14px; font-weight: bold;\">Scan result summary</div>"  >> EmailContent.html
-                  echo "<table role=\"presentation\" border=\"0\" align=\"right\" cellspacing=\"0\">"  >> EmailContent.html
-                  echo "<tr><td style=\"font-weight: bold;\">Sast</td><td style=\"font-weight: bold;\">IaC</td><td style=\"font-weight: bold;\">SCA</td></tr>"  >> EmailContent.html
-                  echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
+                  echo "<div style=font-size:14px; font-weight: bold;>Scan result summary</div>"  >> EmailContent.html
+                  echo "<table role=presentation; border=0; align=right; cellspacing=0>"  >> EmailContent.html
+                  echo "<tr><td style=font-weight: bold;>Sast</td><td style=font-weight: bold;>IaC</td><td style=font-weight: bold;>SCA</td></tr>"  >> EmailContent.html
+                  echo "<tr><td>${{sastCount}}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
                   echo "</table>"  >> EmailContent.html
                   echo "" >> EmailContent.html
-                  echo "<div  style=\"font-size:14px; font-weight: bold;\">Scan result per severity</div>"  >> EmailContent.html
+                  echo "<div  style=font-size:14px; font-weight: bold;>Scan result per severity</div>"  >> EmailContent.html
                   echo "" >> EmailContent.html
-                  echo "<table role=\"presentation\" border=\"0\" align=\"right\" cellspacing=\"0\">" >> EmailContent.html
-                  echo "<tr><td style=\"font-weight: bold;\">High</td><td style=\"font-weight: bold;\">Warning</td><td style=\"font-weight: bold;\">Low</td><td style=\"font-weight: bold;\">Info</td></tr>" >> EmailContent.html
+                  echo "<table role=presentation; border=0; align=right; cellspacing=0>" >> EmailContent.html
+                  echo "<tr><td style=font-weight: bold;>High</td><td style=font-weight: bold;>Warning</td><td style=font-weight: bold;>Low</td><td style=font-weight: bold;>Info</td></tr>" >> EmailContent.html
                   echo "<tr><td>$highCount</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
                   echo "</table>" >> EmailContent.html
                   echo "" >> EmailContent.html
-                  echo "<div style=\"font-size:14px; font-weight: bold;\">Scan results per vulverability</div>" >> EmailContent.html
-                  echo "<table role=\"presentation\" border=\"0\" align=\"right\" cellspacing=\"0\">" >> EmailContent.html
-                  echo "<tr><td style=\"font-weight: bold;\">Vulnerability</td><td style=\"font-weight: bold;\">Count</td></tr>" >> EmailContent.html
+                  echo "<div style=font-size:14px; font-weight: bold;>Scan results per vulverability</div>" >> EmailContent.html
+                  echo "<table role=presentation; border=0; align=right; cellspacing=0>" >> EmailContent.html
+                  echo "<tr><td style=font-weight: bold;>Vulnerability</td><td style=font-weight: bold;>Count</td></tr>" >> EmailContent.html
 
                   for violation in "${nameArray[@]}"
                   do
