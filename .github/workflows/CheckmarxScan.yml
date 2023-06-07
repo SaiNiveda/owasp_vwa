@@ -84,20 +84,20 @@ jobs:
                   echo "<div>${{ github.repository }} | PR:${{ github.event.pull_request.number }} | Run:${{github.run_number}} Status: <b style=color:red>High Risk</b></div>" >> EmailContent.html
                fi
                echo "<div style=font-size:14px><b>Scan result summary</b></div>"  >> EmailContent.html
-               echo "<table class=.demo>"  >> EmailContent.html
+               echo "<table class=demo>"  >> EmailContent.html
                echo "<tr><th>Sast</th><th>IaC</th><th>SCA</th></tr>"  >> EmailContent.html
                echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
                echo "</table>"  >> EmailContent.html
                echo "<br />" >> EmailContent.html
                echo "<div style=font-weight:bold>Scan result per severity</div>"  >> EmailContent.html
                echo "<br />" >> EmailContent.html
-               echo "<table class=.demo>" >> EmailContent.html
+               echo "<table class=demo>" >> EmailContent.html
                echo "<tr><th>High</th><th>Warning</th><th>Low</th><th>Info</th></tr>" >> EmailContent.html
                echo "<tr><td>${highCount}</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
                echo "</table>" >> EmailContent.html
                echo "<br /><br />" >> EmailContent.html
                echo "<div style=font-weight:bold>Scan results per vulverability</div>" >> EmailContent.html
-               echo "<table class=.demo>" >> EmailContent.html
+               echo "<table class=demo>" >> EmailContent.html
                echo "<tr><th>Vulnerability</th><th>Count</th></tr>" >> EmailContent.html
                for violation in "${nameArray[@]}"
                do
