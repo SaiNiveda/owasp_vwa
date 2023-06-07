@@ -69,6 +69,7 @@ jobs:
               #gets and splits list of rule names
               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
               nameArray=($nameResults)
+              
               echo "<!DOCTYPE html>" > EmailContent.html
               echo "<html lang=en>" >> EmailContent.html
               echo "<head>" >> EmailContent.html
@@ -76,7 +77,7 @@ jobs:
               echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
               echo "<style>.demo {border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;}" >> EmailContent.html
               echo ".demo th {border:2px solid #5872F3; padding:5px; background:#A6D2DD;}"  >> EmailContent.html 
-              echo ".demo td {border:2px solid #7A7A7A; text-align:center; padding:5px;} </style>" >> EmailContent.html
+              echo ".demo td {border:2px solid #7A7A7A; text-align:center; padding:5px;}</style>" >> EmailContent.html
               echo "</head>" >> EmailContent.html
               echo "<body>" >> EmailContent.html
                  
@@ -84,25 +85,25 @@ jobs:
                   echo "<div>${{ github.repository }} | PR:${{ github.event.pull_request.number }} | Run:${{github.run_number}} Status: <b style=color:red>High Risk</b></div>" >> EmailContent.html
                fi
                echo "<div style=font-size:14px><b>Scan result summary</b></div>"  >> EmailContent.html
-               echo "<table class=demo>"  >> EmailContent.html
-               echo "<tr><th>Sast</th><th>IaC</th><th>SCA</th></tr>"  >> EmailContent.html
-               echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
+               echo "<table style=border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;>"  >> EmailContent.html
+               echo "<tr><th style=border:2px solid #5872F3; padding:5px; background:#A6D2DD;>Sast</th><th style={border:2px solid #5872F3; padding:5px; background:#A6D2DD;}>IaC</th><th style={border:2px solid #5872F3; padding:5px; background:#A6D2DD;}>SCA</th></tr>"  >> EmailContent.html
+               echo "<tr><td style=border:2px solid #7A7A7A; text-align:center; padding:5px;>${sastCount}</td><td style=border:2px solid #7A7A7A; text-align:center; padding:5px;>${kicsCount}</td><td style=border:2px solid #7A7A7A; text-align:center; padding:5px;>${scaCount}</td></tr>"  >> EmailContent.html
                echo "</table>"  >> EmailContent.html
                echo "<br />" >> EmailContent.html
                echo "<div style=font-weight:bold>Scan result per severity</div>"  >> EmailContent.html
                echo "<br />" >> EmailContent.html
-               echo "<table class=demo>" >> EmailContent.html
-               echo "<tr><th>High</th><th>Warning</th><th>Low</th><th>Info</th></tr>" >> EmailContent.html
-               echo "<tr><td>${highCount}</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
+               echo "<table style={border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;}>" >> EmailContent.html
+               echo "<tr><th style=border:2px solid #5872F3; padding:5px; background:#A6D2DD; color:red>High</th><th style=border:2px solid #5872F3; padding:5px; background:#A6D2DD;>Warning</th><th style=border:2px solid #5872F3; padding:5px; background:#A6D2DD;>Low</th><th>Info</th></tr>" >> EmailContent.html
+               echo "<tr><td style={border:2px solid #7A7A7A; text-align:center; padding:5px;}>${highCount}</td><td style={border:2px solid #7A7A7A; text-align:center; padding:5px;}>${mediumCount}</td><td style={border:2px solid #7A7A7A; text-align:center; padding:5px;}>${lowCount}</td><td style={border:2px solid #7A7A7A; text-align:center; padding:5px;}>${infoCount}</td></tr>" >> EmailContent.html
                echo "</table>" >> EmailContent.html
-               echo "<br /><br />" >> EmailContent.html
-               echo "<div style=font-weight:bold>Scan results per vulverability</div>" >> EmailContent.html
-               echo "<table class=demo>" >> EmailContent.html
-               echo "<tr><th>Vulnerability</th><th>Count</th></tr>" >> EmailContent.html
+               echo "<br />" >> EmailContent.html
+               echo "<div style=font-weight:bold>Scan results per vulnerability</div>" >> EmailContent.html
+               echo "<table style={border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;}>" >> EmailContent.html
+               echo "<tr><th style={border:2px solid #5872F3; padding:5px; background:#A6D2DD;}>Vulnerability</th><th style={border:2px solid #5872F3; padding:5px; background:#A6D2DD;}>Count</th></tr>" >> EmailContent.html
                for violation in "${nameArray[@]}"
                do
                   vulnerabilityCount=$(jq --arg var "$violation" '[.runs[].results[] | select(.message.text==$var)] | length' cx_result.sarif)
-                  echo "<tr><td>${violation}</td><td>${vulnerabilityCount}</td></tr>" >> EmailContent.html
+                  echo "<tr><td style={border:2px solid #7A7A7A; text-align:center; padding:5px;}>${violation}</td><td style={border:2px solid #7A7A7A; text-align:center; padding:5px;}>${vulnerabilityCount}</td></tr>" >> EmailContent.html
                done
                echo "</table>" >> EmailContent.html
                echo "</body></html>" >> EmailContent.html
@@ -125,16 +126,9 @@ jobs:
             name: htmlReport
          
          - name: Send mail
-           uses: dawidd6/action-send-mail@v3.7.2
+           uses: dawidd6/action-send-mail@v3
            with:
-                # Specify connection via URL (replaces server_address, server_port, secure,
-                # username and password)
-                #
-                # Format:
-                #
-                #  * smtp://user:password@server:port
-                #  * smtp+starttls://user:password@server:port
-                #connection_url: ${{secrets.MAIL_CONNECTION}}
+                
                 # Required mail server address if not connection_url:
                 server_address: smtp.gmail.com
                 # Server port, default 25:
@@ -146,19 +140,24 @@ jobs:
                 # Optional (recommended) mail server password:
                 password: ${{secrets.MAIL_PASSWORD}}
                 # Required mail subject:
-                subject: High risk security errors. Build stopped for ${{ github.repository }} | PR:${{ github.event.pull_request.number }} #Github Actions job result
+                subject: Github Actions job result
                 # Required recipients' addresses:
                 to: sai.for.newsletters@gmail.com
                 # Required sender full name (address can be skipped):
-                from: sai.for.newsletters@gmail.com # <user@example.com>
+                from: Sai Niveda # <user@example.com>
                 # Optional plain body:
-                #body: Build job of ${{github.repository}} stopped!
+                body: Build job of ${{github.repository}} stopped!
                 # Optional HTML body read from file:
-                html_body: file://EmailContent.html
+                html_body: file://EmailContent.html 
                 # Optional unsigned/invalid certificates allowance:
                 ignore_cert: true
-                content_type: text/html
                 # Optional converting Markdown to HTML (set content_type to text/html too):
+                content_type: text/html
                 convert_markdown: true
+                # Optional attachments:
+                #attachments: #attachments.zip,git.diff,./dist/static/*.js
                 # Optional priority: 'high', 'normal' (default) or 'low'
                 priority: normal
+                
+                
+                
