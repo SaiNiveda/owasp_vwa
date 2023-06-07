@@ -134,11 +134,11 @@ jobs:
                 #
                 #  * smtp://user:password@server:port
                 #  * smtp+starttls://user:password@server:port
-                connection_url: ${{secrets.MAIL_CONNECTION}}
+                #connection_url: ${{secrets.MAIL_CONNECTION}}
                 # Required mail server address if not connection_url:
                 server_address: smtp.gmail.com
                 # Server port, default 25:
-                server_port: 25 #465
+                server_port: 465
                 # Optional whether this connection use TLS (default is true if server_port is 465)
                 secure: true
                 # Optional (recommended) mail server username:
@@ -150,7 +150,7 @@ jobs:
                 # Required recipients' addresses:
                 to: sai.for.newsletters@gmail.com
                 # Required sender full name (address can be skipped):
-                from: Sai Niveda # <user@example.com>
+                from: sai.for.newsletters@gmail.com # <user@example.com>
                 # Optional plain body:
                 body: Build job of ${{github.repository}} stopped!
                 # Optional HTML body read from file:
