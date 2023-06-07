@@ -125,7 +125,7 @@ jobs:
             name: htmlReport
          
          - name: Send mail
-           uses: dawidd6/action-send-mail@v3
+           uses: dawidd6/action-send-mail@v3.7.2
            with:
                 # Specify connection via URL (replaces server_address, server_port, secure,
                 # username and password)
@@ -138,7 +138,7 @@ jobs:
                 # Required mail server address if not connection_url:
                 server_address: smtp.gmail.com
                 # Server port, default 25:
-                server_port: 465
+                server_port: 25 #465
                 # Optional whether this connection use TLS (default is true if server_port is 465)
                 secure: true
                 # Optional (recommended) mail server username:
