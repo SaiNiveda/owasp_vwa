@@ -57,7 +57,7 @@ jobs:
               #Get counts per engine
                sastCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sast)"))] | length' cx_result.sarif)
                kicsCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(kics)"))] | length' cx_result.sarif)
-               scaCount==$(jq '[.runs[].results[] | select(.ruleId | contains ("(sca)"))] | length' cx_result.sarif)
+               scaCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sca)"))] | length' cx_result.sarif)
                #***need to check api's detected + count with another report
                apisecCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(apisec)"))] | length' cx_result.sarif)
                #Get counts per severity
@@ -74,33 +74,31 @@ jobs:
               echo "<head>" >> EmailContent.html
               echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />" >> EmailContent.html
               echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
+              echo "<style>.demo {border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;}" >> EmailContent.html
+              echo ".demo th {border:2px solid #5872F3; padding:5px; background:#A6D2DD;}"  >> EmailContent.html 
+              echo ".demo td {border:2px solid #7A7A7A; text-align:center; padding:5px;}" >> EmailContent.html
               echo "</head>" >> EmailContent.html
               echo "<body>" >> EmailContent.html
                  
                if (($highCount>0) || ($warningCount>0)); then
-                  echo "<div>run: ${{github.run_number}} build failed with <b color:red>high risk security</b> violations</div>" >> EmailContent.html
-               #else
-                  #echo "<div>run: ${{github.run_number}} build succeeded</div>"
-                  #echo "</body>"
-                  #EOF
-                  #exit 0
-               fi
+                  echo "<div>${{ github.repository }} | PR:${{ github.event.pull_request.number }} | Run:${{github.run_number}} Status: <b style=color:red>High Risk</b></div>" >> EmailContent.html
+               
                echo "<div style=font-size:14px><b>Scan result summary</b></div>"  >> EmailContent.html
-               echo "<table role=table border=1 align=below cellspacing=0>"  >> EmailContent.html
-               echo "<tr><td style=font-weight:bold>Sast</td><td style=font-weight:bold>IaC</td><td style=font-weight:bold>SCA</td></tr>"  >> EmailContent.html
+               echo "<table class=.demo>"  >> EmailContent.html
+               echo "<tr><th>Sast</th><th>IaC</th><th>SCA</th></tr>"  >> EmailContent.html
                echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
                echo "</table>"  >> EmailContent.html
-               echo "<br /><br />" >> EmailContent.html
-               echo "<div  style=font-size:14px><b>Scan result per severity</b></div>"  >> EmailContent.html
-               echo "<br /><br />" >> EmailContent.html
-               echo "<table role=table border=0 align=below cellspacing=0>" >> EmailContent.html
-               echo "<tr><td style=font-weight:bold>High</td><td style=font-weight:bold>Warning</td><td style=font-weight:bold>Low</td><td style=font-weight:bold>Info</td></tr>" >> EmailContent.html
+               echo "<br />" >> EmailContent.html
+               echo "<div style=font-weight:bold>Scan result per severity</div>"  >> EmailContent.html
+               echo "<br />" >> EmailContent.html
+               echo "<table class=.demo>" >> EmailContent.html
+               echo "<tr><th>High</th><th>Warning</th><th>Low</th><th>Info</th></tr>" >> EmailContent.html
                echo "<tr><td>${highCount}</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
                echo "</table>" >> EmailContent.html
                echo "<br /><br />" >> EmailContent.html
-               echo "<div style=font-size:14px><b>Scan results per vulverability</b></div>" >> EmailContent.html
-               echo "<table role=table border=0 align=below cellspacing=0>" >> EmailContent.html
-               echo "<tr><td style=font-weight:bold>Vulnerability</td><td style=font-weight:bold>Count</td></tr>" >> EmailContent.html
+               echo "<div style=font-weight:bold>Scan results per vulverability</div>" >> EmailContent.html
+               echo "<table class=.demo>" >> EmailContent.html
+               echo "<tr><th>Vulnerability</th><th>Count</th></tr>" >> EmailContent.html
                for violation in "${nameArray[@]}"
                do
                   vulnerabilityCount=$(jq --arg var "$violation" '[.runs[].results[] | select(.message.text==$var)] | length' cx_result.sarif)
@@ -115,3 +113,51 @@ jobs:
            with:
               name: htmlReport
               path: EmailContent.html
+              
+   
+   Build:
+      runs-on: ubuntu-latest
+      needs: Parse_Results
+      steps:
+         - name: Download html content
+           uses: actions/download-artifact@v3
+           with:
+            name: htmlReport
+         
+         - name: Send mail
+           uses: dawidd6/action-send-mail@v3
+           with:
+                # Specify connection via URL (replaces server_address, server_port, secure,
+                # username and password)
+                #
+                # Format:
+                #
+                #  * smtp://user:password@server:port
+                #  * smtp+starttls://user:password@server:port
+                connection_url: ${{secrets.MAIL_CONNECTION}}
+                # Required mail server address if not connection_url:
+                server_address: smtp.gmail.com
+                # Server port, default 25:
+                server_port: 465
+                # Optional whether this connection use TLS (default is true if server_port is 465)
+                secure: true
+                # Optional (recommended) mail server username:
+                username: ${{secrets.MAIL_USERNAME}}
+                # Optional (recommended) mail server password:
+                password: ${{secrets.MAIL_PASSWORD}}
+                # Required mail subject:
+                subject: Github Actions job result
+                # Required recipients' addresses:
+                to: sai.for.newsletters@gmail.com
+                # Required sender full name (address can be skipped):
+                from: Sai Niveda # <user@example.com>
+                # Optional plain body:
+                body: Build job of ${{github.repository}} stopped!
+                # Optional HTML body read from file:
+                html_body: file://EmailContent.html
+                # Optional unsigned/invalid certificates allowance:
+                ignore_cert: true
+                # Optional converting Markdown to HTML (set content_type to text/html too):
+                convert_markdown: true
+                # Optional priority: 'high', 'normal' (default) or 'low'
+                priority: normal
