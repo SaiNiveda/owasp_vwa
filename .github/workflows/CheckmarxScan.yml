@@ -153,9 +153,9 @@ jobs:
                 # Required mail subject:
                 subject: Github Actions job result
                 # Required recipients' addresses:
-                to: sai.for.newsletters@gmail.com
+                to: ${{vars.EMAIL_TO}} #sai.for.newsletters@gmail.com
                 # Required sender full name (address can be skipped):
-                from: Sai Niveda # <user@example.com>
+                from: ${{vars.EMAIL_FROM}} # <user@example.com>
                 # Optional plain body:
                 body: Build job of ${{github.repository}} stopped!
                 # Optional HTML body read from file:
