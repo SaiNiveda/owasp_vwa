@@ -54,8 +54,7 @@ jobs:
            with:
             name: cx_result
             
-         #- name: Interpret Results
-         - id: Interpret_Results
+         - name: Interpret Results
            run: |
            
                #Set html Styles
@@ -118,9 +117,9 @@ jobs:
                done
                echo "</table>" >> EmailContent.html
                echo "</body></html>" >> EmailContent.html
-              
-
-              
+               
+           id: Interpret_Results
+     
          - name: Upload email content to workflow
            uses: actions/upload-artifact@v3
            with:
