@@ -78,7 +78,7 @@ jobs:
                infoCount=$(jq '[.runs[].results[] | select(.level=="info")] | length' cx_result.sarif)
                
                #Set Outputs
-               echo "${highCount}" >> $high #"$GITHUB_OUTPUT"
+               echo "${highCount}" >> "$GITHUB_OUTPUT"
                echo "{$mediumCount}" >> "$GITHUB_OUTPUT"
                
                #gets and splits list of rule names
