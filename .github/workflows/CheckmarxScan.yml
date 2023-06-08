@@ -45,13 +45,16 @@ jobs:
    Parse_Results:
       runs-on: ubuntu-latest
       needs: AST_Scan
+      outputs:
+         high: ${{ steps.Interpret_Results.outputs.highCount }}
+         med: ${{ steps.Interpret_Results.outputs.mediumCount }}
       steps:
          - name: Download results
            uses: actions/download-artifact@v3
            with:
             name: cx_result
-            #path: ..../${{ github.repository }}/results
-         - name: Parse Results
+            
+         - name: Interpret_Results
            run: |
            
                #Set html Styles
@@ -73,6 +76,10 @@ jobs:
                lowCount=$(jq '[.runs[].results[] | select(.level=="low")] | length' cx_result.sarif)
                infoCount=$(jq '[.runs[].results[] | select(.level=="info")] | length' cx_result.sarif)
                
+               #Set Outputs
+               echo "${highCount}" >> "$GITHUB_OUTPUT"
+               echo "${mediumCount}" >> "$GITHUB_OUTPUT"
+               
                #gets and splits list of rule names
                IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
                nameArray=($nameResults)
@@ -82,9 +89,6 @@ jobs:
                echo "<head>" >> EmailContent.html
                echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />" >> EmailContent.html
                echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
-               echo "<style>.demo {border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;}" >> EmailContent.html
-               echo ".demo th {border:2px solid #5872F3; padding:5px; background:#A6D2DD;}"  >> EmailContent.html 
-               echo ".demo td {border:2px solid #7A7A7A; text-align:center; padding:5px;}</style>" >> EmailContent.html
                echo "</head>" >> EmailContent.html
                echo "<body>" >> EmailContent.html
                  
@@ -98,7 +102,6 @@ jobs:
                echo "</table>"  >> EmailContent.html
                echo "<br />" >> EmailContent.html
                echo "<div style=font-weight:bold>Scan result per severity</div>"  >> EmailContent.html
-               echo "<br />" >> EmailContent.html
                echo "<table style=\"${tableStyle}\">" >> EmailContent.html
                echo "<tr><th style=\"${thStyle}\">High</th><th style=\"${thStyle}\">Warning</th><th style=\"${thStyle}\">Low</th><th style=\"${thStyle}\">Info</th></tr>" >> EmailContent.html
                echo "<tr><td style=\"${tdStyle}\">${highCount}</td><td style=\"${tdStyle}\"}>${mediumCount}</td><td style=\"${tdStyle}\">${lowCount}</td><td style=\"${tdStyle}\">${infoCount}</td></tr>" >> EmailContent.html
@@ -106,7 +109,7 @@ jobs:
                echo "<br />" >> EmailContent.html
                echo "<div style=font-weight:bold>Scan results per vulnerability</div>" >> EmailContent.html
                echo "<table style=\"${tableStyle}\"}>" >> EmailContent.html
-               echo "<tr><th style=\"${thStyle}\"}>Vulnerability</th><th style=style=\"${thStyle}\">Count</th></tr>" >> EmailContent.html
+               echo "<tr><th style=\"${thStyle}\"}>Vulnerability</th><th style=\"${thStyle}\">Count</th></tr>" >> EmailContent.html
                for violation in "${nameArray[@]}"
                do
                   vulnerabilityCount=$(jq --arg var "$violation" '[.runs[].results[] | select(.message.text==$var)] | length' cx_result.sarif)
@@ -128,13 +131,18 @@ jobs:
       runs-on: ubuntu-latest
       needs: Parse_Results
       steps:
-         - name: Download html content
+         - env:
+            HIGH: ${{needs.Parse_Results.Interpret_Results.highCount}}
+            MED: ${{needs.Parse_Results.Interpret_Results.mediumCount}}
+      
+         - name: Download html email content
            uses: actions/download-artifact@v3
            with:
             name: htmlReport
          
          - name: Send mail
            uses: dawidd6/action-send-mail@v3
+           if: $HIGH>0 || $MED>0
            with:
                 
                 # Required mail server address if not connection_url:
