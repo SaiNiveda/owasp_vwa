@@ -45,69 +45,80 @@ jobs:
    Parse_Results:
       runs-on: ubuntu-latest
       needs: AST_Scan
+      outputs:
+         high: ${{ steps.Interpret_Results.outputs.highCount }}
+         med: ${{ steps.Interpret_Results.outputs.mediumCount }}
       steps:
          - name: Download results
            uses: actions/download-artifact@v3
            with:
             name: cx_result
-            #path: ..../${{ github.repository }}/results
-         - name: Parse Results
+            
+         - name: Interpret Results
+           id: Interpret_Results
            run: |
-              
-              #Get counts per engine
+           
+               #Set html Styles
+               tableStyle="border-width:2px;border-style:solid;border-color:#7A7A7A;border-collapse:collapse;border-spacing:2px;padding-top:5px;padding-bottom:5px;padding-right:5px;padding-left:5px;"
+               thStyle="border-width:2px;border-style:solid;border-color:#5872F3;padding-top:5px;padding-bottom:5px;padding-right:5px;padding-left:5px;background-color:#A6D2DD;"
+               tdStyle="border-width:2px;border-style:solid;border-color:#7A7A7A;text-align:center;padding-top:5px;padding-bottom:5px;padding-right:5px;padding-left:5px;"
+               
+               #Get counts per engine
                sastCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sast)"))] | length' cx_result.sarif)
                kicsCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(kics)"))] | length' cx_result.sarif)
                scaCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(sca)"))] | length' cx_result.sarif)
                #***need to check api's detected + count with another report
                apisecCount=$(jq '[.runs[].results[] | select(.ruleId | contains ("(apisec)"))] | length' cx_result.sarif)
+               
                #Get counts per severity
                highCount=$(jq '[.runs[].results[] | select(.level=="error")] | length' cx_result.sarif)
                mediumCount=$(jq '[.runs[].results[] | select(.level=="warning")] | length' cx_result.sarif)
                #***need to check actual levels with another report
                lowCount=$(jq '[.runs[].results[] | select(.level=="low")] | length' cx_result.sarif)
                infoCount=$(jq '[.runs[].results[] | select(.level=="info")] | length' cx_result.sarif)
-              #gets and splits list of rule names
-              IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
-              nameArray=($nameResults)
-              echo "<!DOCTYPE html>" > EmailContent.html
-              echo "<html lang=en>" >> EmailContent.html
-              echo "<head>" >> EmailContent.html
-              echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />" >> EmailContent.html
-              echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
-              echo "<style>.demo {border:2px solid #7A7A7A;border-collapse:collapse;border-spacing:2px;padding:5px;}" >> EmailContent.html
-              echo ".demo th {border:2px solid #5872F3; padding:5px; background:#A6D2DD;}"  >> EmailContent.html 
-              echo ".demo td {border:2px solid #7A7A7A; text-align:center; padding:5px;} </style>" >> EmailContent.html
-              echo "</head>" >> EmailContent.html
-              echo "<body>" >> EmailContent.html
+               
+               #Set Outputs
+               echo "highCount=${highCount}" >> "$GITHUB_OUTPUT"
+               echo "mediumCount={$mediumCount}" >> "$GITHUB_OUTPUT"
+               
+               #gets and splits list of rule names
+               IFS=$'\n' nameResults=$(jq -r -c .runs[].tool.driver.rules[].name cx_result.sarif)
+               nameArray=($nameResults)
+              
+               echo "<!DOCTYPE html>" > EmailContent.html
+               echo "<html lang=en>" >> EmailContent.html
+               echo "<head>" >> EmailContent.html
+               echo "<meta http-equiv=Content-Type content=text/html; charset=utf-8 />" >> EmailContent.html
+               echo "<meta name=viewport content=width=device-width>" >> EmailContent.html
+               echo "</head>" >> EmailContent.html
+               echo "<body>" >> EmailContent.html
                  
                if (($highCount>0) || ($warningCount>0)); then
                   echo "<div>${{ github.repository }} | PR:${{ github.event.pull_request.number }} | Run:${{github.run_number}} Status: <b style=color:red>High Risk</b></div>" >> EmailContent.html
                fi
                echo "<div style=font-size:14px><b>Scan result summary</b></div>"  >> EmailContent.html
-               echo "<table class=demo>"  >> EmailContent.html
-               echo "<tr><th>Sast</th><th>IaC</th><th>SCA</th></tr>"  >> EmailContent.html
-               echo "<tr><td>${sastCount}</td><td>${kicsCount}</td><td>${scaCount}</td></tr>"  >> EmailContent.html
+               echo "<table style=\"${tableStyle}\">"  >> EmailContent.html
+               echo "<tr><th style=\"${thStyle}\">Sast</th><th style=\"${thStyle}\">IaC</th><th style=\"${thStyle}\">SCA</th></tr>"  >> EmailContent.html
+               echo "<tr><td style=\"${tdStyle}\">${sastCount}</td><td style=\"${tdStyle}\">${kicsCount}</td><td style=\"${tdStyle}\">${scaCount}</td></tr>"  >> EmailContent.html
                echo "</table>"  >> EmailContent.html
                echo "<br />" >> EmailContent.html
                echo "<div style=font-weight:bold>Scan result per severity</div>"  >> EmailContent.html
-               echo "<br />" >> EmailContent.html
-               echo "<table class=demo>" >> EmailContent.html
-               echo "<tr><th>High</th><th>Warning</th><th>Low</th><th>Info</th></tr>" >> EmailContent.html
-               echo "<tr><td>${highCount}</td><td>${mediumCount}</td><td>${lowCount}</td><td>${infoCount}</td></tr>" >> EmailContent.html
+               echo "<table style=\"${tableStyle}\">" >> EmailContent.html
+               echo "<tr><th style=\"${thStyle}\">High</th><th style=\"${thStyle}\">Warning</th><th style=\"${thStyle}\">Low</th><th style=\"${thStyle}\">Info</th></tr>" >> EmailContent.html
+               echo "<tr><td style=\"${tdStyle}\">${highCount}</td><td style=\"${tdStyle}\"}>${mediumCount}</td><td style=\"${tdStyle}\">${lowCount}</td><td style=\"${tdStyle}\">${infoCount}</td></tr>" >> EmailContent.html
                echo "</table>" >> EmailContent.html
-               echo "<br /><br />" >> EmailContent.html
-               echo "<div style=font-weight:bold>Scan results per vulverability</div>" >> EmailContent.html
-               echo "<table class=demo>" >> EmailContent.html
-               echo "<tr><th>Vulnerability</th><th>Count</th></tr>" >> EmailContent.html
+               echo "<br />" >> EmailContent.html
+               echo "<div style=font-weight:bold>Scan results per vulnerability</div>" >> EmailContent.html
+               echo "<table style=\"${tableStyle}\"}>" >> EmailContent.html
+               echo "<tr><th style=\"${thStyle}\"}>Vulnerability</th><th style=\"${thStyle}\">Count</th></tr>" >> EmailContent.html
                for violation in "${nameArray[@]}"
                do
                   vulnerabilityCount=$(jq --arg var "$violation" '[.runs[].results[] | select(.message.text==$var)] | length' cx_result.sarif)
-                  echo "<tr><td>${violation}</td><td>${vulnerabilityCount}</td></tr>" >> EmailContent.html
+                  echo "<tr><td style=\"${tdStyle}\">${violation}</td><td style=\"${tdStyle}\">${vulnerabilityCount}</td></tr>" >> EmailContent.html
                done
                echo "</table>" >> EmailContent.html
                echo "</body></html>" >> EmailContent.html
-
-              
+     
          - name: Upload email content to workflow
            uses: actions/upload-artifact@v3
            with:
@@ -119,22 +130,16 @@ jobs:
       runs-on: ubuntu-latest
       needs: Parse_Results
       steps:
-         - name: Download html content
+         - name: Download html email content
            uses: actions/download-artifact@v3
            with:
             name: htmlReport
          
-         - name: Send mail
-           uses: dawidd6/action-send-mail@v3.7.2
+         - name: Send mail 
+           uses: dawidd6/action-send-mail@v3
+           if: ${{needs.Parse_Results.Interpret_Results.highCount}}>0 || ${{needs.Parse_Results.Interpret_Results.mediumCount}}>0
            with:
-                # Specify connection via URL (replaces server_address, server_port, secure,
-                # username and password)
-                #
-                # Format:
-                #
-                #  * smtp://user:password@server:port
-                #  * smtp+starttls://user:password@server:port
-                #connection_url: ${{secrets.MAIL_CONNECTION}}
+                
                 # Required mail server address if not connection_url:
                 server_address: smtp.gmail.com
                 # Server port, default 25:
@@ -146,19 +151,20 @@ jobs:
                 # Optional (recommended) mail server password:
                 password: ${{secrets.MAIL_PASSWORD}}
                 # Required mail subject:
-                subject: High risk security errors. Build stopped for ${{ github.repository }} | PR:${{ github.event.pull_request.number }} #Github Actions job result
+                subject: Github Actions job result
                 # Required recipients' addresses:
-                to: sai.for.newsletters@gmail.com
+                to: ${{vars.EMAIL_TO}} #sai.for.newsletters@gmail.com
                 # Required sender full name (address can be skipped):
-                from: sai.for.newsletters@gmail.com # <user@example.com>
+                from: ${{vars.EMAIL_FROM}} # <user@example.com>
                 # Optional plain body:
-                #body: Build job of ${{github.repository}} stopped!
+                body: Build job of ${{github.repository}} stopped!
                 # Optional HTML body read from file:
-                html_body: file://EmailContent.html
+                html_body: file://EmailContent.html 
                 # Optional unsigned/invalid certificates allowance:
                 ignore_cert: true
-                content_type: text/html
                 # Optional converting Markdown to HTML (set content_type to text/html too):
                 convert_markdown: true
+                # Optional attachments:
+                #attachments: #attachments.zip,git.diff,./dist/static/*.js
                 # Optional priority: 'high', 'normal' (default) or 'low'
                 priority: normal
